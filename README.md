@@ -1,17 +1,17 @@
 # 🔐 X3DH Protocol Implementation in Python
 
-A simple implementation of the **X3DH (Extended Triple Diffie-Hellman)** protocol using **Python** and the **Cryptography** library.
+A simple educational implementation of the **X3DH (Extended Triple Diffie-Hellman)** protocol using **Python** and the **Cryptography** library.
 
-This project demonstrates how **Alice** and **Bob** establish a shared secret key and securely exchange an encrypted message using:
+This project demonstrates how Alice and Bob establish a shared secret key and securely exchange encrypted messages using:
 
 * X25519 Key Exchange
 * Ed25519 Digital Signatures
 * HKDF-SHA256 Key Derivation
-* AES-GCM Encryption
+* AES-256-GCM Encryption
 
 ---
 
-## 📁 File Structure
+## 📁 Project Structure
 
 ```text
 project/
@@ -20,19 +20,17 @@ project/
 └── README.md
 ```
 
-> Rename your Python file to **x3dh.py** (recommended).
-
 ---
 
-## 📦 Dependencies
+## 📦 Installation
 
-Install the required library:
+Install the required dependency:
 
 ```bash
 pip install cryptography
 ```
 
-Check installation:
+Verify installation:
 
 ```bash
 pip show cryptography
@@ -40,28 +38,13 @@ pip show cryptography
 
 ---
 
-## ▶️ Run the Project
+## ▶️ Run
 
 ```bash
 python x3dh.py
 ```
 
----
-
-## ⚠️ Important Note
-
-This implementation follows the X3DH workflow for educational purposes.
-
-✅ No code changes are required to run the project.
-
-If the `cryptography` package is installed correctly, the code should execute successfully and produce:
-
-* Key Generation
-* Signature Verification
-* DH Calculations
-* Shared Secret Derivation
-* AES-GCM Encryption
-* Successful Decryption
+No code modifications are required.
 
 ---
 
@@ -84,9 +67,9 @@ If the `cryptography` package is installed correctly, the code should execute su
 
 ---
 
-## 🔄 X3DH Workflow
+## 🔄 Protocol Flow
 
-### Phase 1: Bob Publishes Keys
+### 1. Bob Publishes
 
 Bob generates:
 
@@ -96,24 +79,25 @@ SPKB
 OPKB
 ```
 
-Bob signs:
+Bob signs the Signed Prekey using Ed25519 and publishes:
 
 ```text
-Encode(SPKB)
+IKB
+SPKB
+Signature
+OPKB
 ```
-
-and uploads the public keys to the server.
 
 ---
 
-### Phase 2: Alice Initiates
+### 2. Alice Initiates
 
 Alice:
 
-1. Downloads Bob's Prekey Bundle
-2. Verifies Bob's Signature
-3. Generates Ephemeral Key (EKA)
-4. Calculates:
+1. Downloads Bob's prekey bundle
+2. Verifies the signature
+3. Generates EKA
+4. Computes:
 
 ```text
 DH1 = DH(IKA, SPKB)
@@ -138,14 +122,13 @@ SK = HKDF(KM)
 
 ---
 
-### Phase 3: Bob Receives Message
+### 3. Bob Receives
 
 Bob:
 
-1. Receives Alice's keys and ciphertext
-2. Recomputes DH1–DH4
-3. Derives the same shared secret
-4. Decrypts the ciphertext
+1. Recomputes DH1–DH4
+2. Derives the same shared secret
+3. Decrypts the ciphertext
 
 Result:
 
@@ -157,29 +140,29 @@ HANDSHAKE COMPLETE
 
 ## 🛠 Libraries Used
 
-| Library       | Purpose                     |
-| ------------- | --------------------------- |
-| os            | Random nonce generation     |
-| binascii      | Hex output formatting       |
-| x25519        | Diffie-Hellman key exchange |
-| ed25519       | Digital signatures          |
-| serialization | Key encoding                |
-| HKDF          | Shared key derivation       |
-| AESGCM        | Authenticated encryption    |
+| Library       | Purpose                  |
+| ------------- | ------------------------ |
+| os            | Random nonce generation  |
+| binascii      | Hex formatting           |
+| x25519        | Diffie-Hellman exchange  |
+| ed25519       | Digital signatures       |
+| serialization | Key encoding             |
+| HKDF          | Key derivation           |
+| AESGCM        | Authenticated encryption |
 
 ---
 
 ## 🔒 Security Features
 
-* Authentication using Ed25519 signatures
-* Secure key exchange using X25519
+* Authentication via Ed25519 signatures
+* X25519 secure key exchange
 * HKDF-SHA256 session key derivation
-* AES-GCM authenticated encryption
-* One-Time Prekey deletion for forward secrecy
+* AES-256-GCM authenticated encryption
+* Forward secrecy using ephemeral and one-time keys
 
 ---
 
-## 📚 Protocol Reference
+## 📚 Reference
 
 X3DH Specification:
 
@@ -187,7 +170,19 @@ https://signal.org/docs/specifications/x3dh/
 
 ---
 
-## 📝 Sample Output
+## ⚠ Disclaimer
+
+This implementation is intended for:
+
+* Learning
+* Research
+* Academic Demonstration
+
+It is **not production-ready** and should not be used in real-world secure messaging systems without additional security reviews and protocol hardening.
+
+---
+
+## ✅ Sample Output
 
 ```text
 PHASE 1: BOB PUBLISHES PREKEYS
@@ -211,6 +206,6 @@ HANDSHAKE COMPLETE
 
 ---
 
-### Educational Purpose
+## 👨‍💻 Author
 
-This project was created to understand and demonstrate the working of the **X3DH Protocol** and secure asynchronous key exchange in modern messaging systems such as Signal.
+Educational implementation of the X3DH Protocol using Python and the Cryptography library.
