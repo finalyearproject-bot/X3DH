@@ -1,71 +1,78 @@
-# X3DH
-This repository contains a Python implementation of the Extended Triple Diffie-Hellman (X3DH) key agreement protocol. It is a cryptographic handshake used by messaging apps like Signal and WhatsApp to establish a secure, shared secret key between two parties (Alice and Bob) asynchronously meaning they don't both need to be online at the same time.
+# X3DH Protocol Simulation in Python
 
-📖 What Does This Code Do?
-This script simulates a complete X3DH conversation. It demonstrates how Bob generates his "prekeys" and leaves them on a server, how Alice fetches those keys to encrypt an initial message, and how Bob uses his private keys to decrypt that message when he finally comes online.
+This repository contains a Python implementation of the **Extended Triple Diffie-Hellman (X3DH)** key agreement protocol. 
 
-🛠 Dependencies and Libraries
-This script uses Python's built-in libraries alongside one external cryptographic library.
+X3DH is the cryptographic protocol used by modern secure messaging apps (like Signal and WhatsApp) to establish a shared secret key between two parties, even if they are not online at the same time (asynchronous communication).
 
-External Dependency:
+---
 
-cryptography: The core library used for all cryptographic operations (curve math, hashing, key derivation, and encryption).
+## 🛠 Dependencies & Libraries
 
-Built-in Python Libraries:
+This script relies on a mix of Python standard libraries and one powerful third-party cryptography package.
 
-os: Used to generate secure random bytes (for the encryption nonce).
+**Standard Libraries (Built-in):**
+* `os`: Used for generating cryptographically secure random numbers (the nonce).
+* `binascii`: Used to format the raw byte outputs into readable hexadecimal strings for the console.
 
-binascii: Used to convert raw bytes into readable hexadecimal strings for the console output.
+**Third-Party Libraries:**
+* `cryptography`: The core library used for all cryptographic primitives. 
+    * *Algorithms used:* `x25519` (Key Exchange), `ed25519` (Signatures), `HKDF` (Key Derivation), `AESGCM` (Authenticated Encryption).
 
-🚀 Installation & Setup
-Ensure you have Python installed (Python 3.7+ is recommended).
+### Installation
 
-Install the required external library using pip:
+To install the required third-party dependencies, simply run:
+
+
+pip install -r requirements.txt
+
+🚀 How to Run the Code
+Simply execute the Python script from your terminal:
 
 Bash
-pip install cryptography
-Run the script:
+python x3dh_simulation.py
+(Note: Replace x3dh_simulation.py with whatever you named your Python file).
 
-Bash
-python x3dh_implementation.py
-(Note: Replace x3dh_implementation.py with whatever you named your Python file).
+📖 How It Works: The Easy Steps
+The code simulates an interaction between two users: Alice and Bob. The execution is broken down into three main phases:
 
-🧠 Easy Step-by-Step Explanation
-The protocol runs in three main phases. Here is exactly what is happening in the code:
+Phase 1: Key Generation & Publishing (Bob's Setup)
+Before Alice can send Bob a message, Bob needs to tell the world how to encrypt messages for him.
 
-Phase 1: Bob Prepares for Messages (Publishing Prekeys)
-Before Alice can even say hello, Bob needs to set up a mailbox with specific locks.
+Identity Keys: Both Alice and Bob generate long-term Identity Keys (IKA and IKB).
 
-Identity Key (IKB): Bob generates a long-term identity key. This proves he is Bob.
+Prekeys: Bob generates a Signed Prekey (SPKB) and a One-Time Prekey (OPKB).
 
-Signed Prekey (SPKB): He generates a medium-term key and signs it with his Identity Key. This proves the key actually belongs to him.
+Publish: Bob signs his Prekey to prove it belongs to him and "publishes" all these keys to a central server.
 
-One-Time Prekeys (OPKB): He generates a batch of single-use keys.
+Phase 2: Fetch & Initiate (Alice's Action)
+Alice wants to send Bob a secure "Hello!" but Bob is offline.
 
-Publishing: He "uploads" these public keys to a central server (simulated in the code).
+Fetch: Alice downloads Bob's "Prekey Bundle" from the server.
 
-Phase 2: Alice Initiates the Chat
-Alice wants to send Bob a secure message, but Bob is currently offline.
+Verify: She checks Bob's signature to ensure the keys are legit.
 
-Fetching Keys: Alice contacts the server and downloads Bob's public keys.
+Ephemeral Key: Alice generates a temporary (ephemeral) key pair (EKA) just for this session.
 
-Verification: Alice verifies the signature on Bob's Signed Prekey to ensure she isn't being tricked by an attacker.
+The Math (DH1 to DH4): Alice mixes her keys with Bob's keys using Elliptic Curve Diffie-Hellman (ECDH) math. This generates four shared secrets.
 
-Ephemeral Key (EKA): Alice generates a temporary "throwaway" key pair just for this interaction.
+The Master Key (SK): Alice mashes those four secrets together using a Key Derivation Function (HKDF) to create a single, super-secure Session Key (SK).
 
-The Math (DH1 to DH4): Alice mixes her private keys with Bob's public keys using an algorithm called Elliptic Curve Diffie-Hellman. She does this 4 times to create an incredibly strong mix of cryptographic material.
+Encrypt & Send: Alice uses the SK to encrypt her payload ("Hello Bob!") using AES-GCM and sends it off. She then immediately deletes her temporary keys.
 
-Key Derivation (KDF): Alice uses a Key Derivation Function (HKDF) to smash those 4 math outputs into a single, secure 32-byte Shared Key (SK).
+Phase 3: Receive & Decrypt (Bob's Action)
+Bob comes online and receives Alice's encrypted message.
 
-Encryption: Alice uses this Shared Key to encrypt her message ("Hello Bob!...") using AES-GCM, a standard encryption algorithm. She then "sends" this ciphertext to Bob.
+The Math (Repeated): Using his own private keys and the public keys Alice sent along with the message, Bob repeats the exact same DH math.
 
-Phase 3: Bob Receives and Decrypts
-Bob finally comes online and receives Alice's encrypted message, along with her public Identity Key and her throwaway Ephemeral Key.
+The Master Key (SK): Because math is awesome, Bob arrives at the exact same Session Key (SK) that Alice generated.
 
-The Reverse Math: Because Bob holds the private halves of the public keys Alice used, he can perform the exact same Diffie-Hellman math on his end.
+Decrypt: Bob uses the SK to decrypt the ciphertext and read the message.
 
-Recreating the Shared Key: Bob runs the math through the same KDF and successfully recreates the exact same Shared Key (SK) that Alice generated.
+Cleanup: Bob deletes the One-Time Prekey (OPKB) he used to ensure "Forward Secrecy" (meaning even if his keys are stolen in the future, this specific message can never be decrypted again).
 
-Decryption: Bob uses the Shared Key to decrypt the ciphertext and reads the message.
+🔒 Security Concepts Demonstrated
+Mutual Authentication: Both parties know who they are talking to.
 
-Forward Secrecy: To ensure ultimate security, Bob deletes the single-use One-Time Prekey (OPKB). Even if an attacker steals Bob's phone tomorrow, they cannot decrypt this message because the specific one-time key used for it has been destroyed.
+Forward Secrecy: Past messages cannot be decrypted if long-term keys are compromised in the future.
+
+Cryptographic Deniability: Either party can forge a transcript after the fact, meaning the messages cannot be mathematically proven to third parties.
