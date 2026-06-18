@@ -19,7 +19,7 @@ project/
 ├── x3dh.py
 └── README.md
 ```
-
+Rename your Python file to x3dh.py (recommended).
 ---
 
 ## 📦 Installation
